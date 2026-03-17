@@ -235,6 +235,18 @@ div[data-testid="progress-bar"], .progress-bar {
   z-index: -1 !important;
 }
 
+#exec_md_out > .wrap,
+#det_md_out > .wrap,
+#act_md_out > .wrap {
+  display: none !important;
+}
+
+#exec_md_out > .pending,
+#det_md_out > .pending,
+#act_md_out > .pending {
+  opacity: 1 !important;
+}
+
 .scribe-header {
   border: var(--scribe-border);
   box-shadow: var(--scribe-shadow);
