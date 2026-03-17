@@ -101,16 +101,86 @@ APP_HEAD = """
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+window.scribeForceLightTheme = function () {
+  const html = document.documentElement;
+  const body = document.body;
+  if (html) {
+    if (html.dataset.theme !== "light") {
+      html.dataset.theme = "light";
+    }
+    html.classList.remove("dark");
+    html.classList.add("light");
+    html.style.colorScheme = "light";
+  }
+  if (body) {
+    body.classList.remove("dark");
+    body.classList.add("light");
+    body.style.colorScheme = "light";
+  }
+};
+window.addEventListener("DOMContentLoaded", window.scribeForceLightTheme);
+window.addEventListener("load", window.scribeForceLightTheme);
+</script>
 """ + COPY_HELPERS_HEAD
+
+
+APP_THEME = gr.themes.Base(
+    primary_hue=gr.themes.colors.orange,
+    secondary_hue=gr.themes.colors.orange,
+    neutral_hue=gr.themes.colors.stone,
+).set(
+    background_fill_primary="#f6efe5",
+    background_fill_primary_dark="#f6efe5",
+    background_fill_secondary="#fbf6ee",
+    background_fill_secondary_dark="#fbf6ee",
+    body_background_fill="#f6efe5",
+    body_background_fill_dark="#f6efe5",
+    body_text_color="#111111",
+    body_text_color_dark="#111111",
+    body_text_color_subdued="#4f4338",
+    body_text_color_subdued_dark="#4f4338",
+    block_background_fill="#fbf6ee",
+    block_background_fill_dark="#fbf6ee",
+    block_border_color="#111111",
+    block_border_color_dark="#111111",
+    block_label_background_fill="#fbf6ee",
+    block_label_background_fill_dark="#fbf6ee",
+    block_label_text_color="#111111",
+    block_label_text_color_dark="#111111",
+    input_background_fill="#fffaf2",
+    input_background_fill_dark="#fffaf2",
+    input_border_color="#111111",
+    input_border_color_dark="#111111",
+    input_placeholder_color="#6b5f54",
+    input_placeholder_color_dark="#6b5f54",
+    button_primary_background_fill="#f18a45",
+    button_primary_background_fill_dark="#f18a45",
+    button_primary_background_fill_hover="#ff9b59",
+    button_primary_background_fill_hover_dark="#ff9b59",
+    button_primary_text_color="#111111",
+    button_primary_text_color_dark="#111111",
+    button_primary_border_color="#111111",
+    button_primary_border_color_dark="#111111",
+    button_secondary_background_fill="#f7dcc2",
+    button_secondary_background_fill_dark="#f7dcc2",
+    button_secondary_background_fill_hover="#f2c79e",
+    button_secondary_background_fill_hover_dark="#f2c79e",
+    button_secondary_text_color="#111111",
+    button_secondary_text_color_dark="#111111",
+    button_secondary_border_color="#111111",
+    button_secondary_border_color_dark="#111111",
+)
 
 
 CUSTOM_CSS = """
 :root {
-  --scribe-bg: #f1ebdf;
-  --scribe-paper: #fffdf7;
-  --scribe-panel: #ffd84d;
-  --scribe-panel-alt: #ff6a13;
-  --scribe-panel-muted: #d9d1c2;
+  --scribe-bg: #f6efe5;
+  --scribe-paper: #fbf6ee;
+  --scribe-panel: #f7dcc2;
+  --scribe-panel-alt: #f18a45;
+  --scribe-panel-muted: #eadfce;
+  --scribe-panel-soft: #fffaf2;
   --scribe-ink: #111111;
   --scribe-danger: #e61b00;
   --scribe-shadow: 8px 8px 0 0 #111111;
@@ -125,10 +195,10 @@ CUSTOM_CSS = """
 
 html, body {
   background:
-    linear-gradient(90deg, rgba(17, 17, 17, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(17, 17, 17, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(241, 138, 69, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(17, 17, 17, 0.04) 1px, transparent 1px),
     var(--scribe-bg);
-  background-size: 36px 36px, 36px 36px, auto;
+  background-size: 28px 28px, 28px 28px, auto;
   color-scheme: light;
 }
 
@@ -168,7 +238,7 @@ div[data-testid="progress-bar"], .progress-bar {
 .scribe-header {
   border: var(--scribe-border);
   box-shadow: var(--scribe-shadow);
-  background: linear-gradient(135deg, var(--scribe-panel) 0 68%, var(--scribe-panel-alt) 68% 100%);
+  background: linear-gradient(135deg, #f7e3bf 0 60%, var(--scribe-panel-alt) 60% 100%);
   color: var(--scribe-ink) !important;
   padding: 24px;
   margin-bottom: 18px;
@@ -199,6 +269,7 @@ div[data-testid="progress-bar"], .progress-bar {
   line-height: 0.94;
   letter-spacing: -0.05em;
   text-transform: uppercase;
+  color: var(--scribe-ink) !important;
 }
 
 .scribe-header__grid {
@@ -210,7 +281,7 @@ div[data-testid="progress-bar"], .progress-bar {
 
 .scribe-header__card {
   border: var(--scribe-border);
-  background: var(--scribe-paper);
+  background: rgba(255, 250, 242, 0.96);
   padding: 14px;
   box-shadow: 4px 4px 0 0 #111111;
 }
@@ -227,6 +298,7 @@ div[data-testid="progress-bar"], .progress-bar {
 .gradio-container h3 {
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  color: var(--scribe-ink) !important;
 }
 
 .gradio-container label,
@@ -266,7 +338,8 @@ div[data-testid="progress-bar"], .progress-bar {
 .gradio-container .gr-accordion {
   border: var(--scribe-border) !important;
   box-shadow: var(--scribe-shadow);
-  background: var(--scribe-paper) !important;
+  background: linear-gradient(180deg, var(--scribe-paper), #f7f0e6) !important;
+  color: var(--scribe-ink) !important;
 }
 
 .gradio-container textarea,
@@ -278,7 +351,7 @@ div[data-testid="progress-bar"], .progress-bar {
   border: var(--scribe-border) !important;
   border-radius: 0 !important;
   box-shadow: 5px 5px 0 0 #111111;
-  background: #fffef9 !important;
+  background: var(--scribe-panel-soft) !important;
   color: var(--scribe-ink) !important;
 }
 
@@ -314,7 +387,7 @@ div[data-testid="progress-bar"], .progress-bar {
 .gradio-container button.primary,
 .gradio-container .primary {
   background: var(--scribe-panel-alt) !important;
-  color: #fff6eb !important;
+  color: var(--scribe-ink) !important;
 }
 
 .gradio-container button.secondary,
@@ -334,7 +407,7 @@ div[data-testid="progress-bar"], .progress-bar {
   border: var(--scribe-border) !important;
   border-radius: 0 !important;
   box-shadow: 5px 5px 0 0 #111111;
-  background: var(--scribe-panel-muted) !important;
+  background: #efe5d7 !important;
   color: var(--scribe-ink) !important;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -348,19 +421,27 @@ div[data-testid="progress-bar"], .progress-bar {
 .gradio-container [role="tabpanel"] {
   border: var(--scribe-border) !important;
   box-shadow: var(--scribe-shadow);
-  background: var(--scribe-paper) !important;
+  background: linear-gradient(180deg, var(--scribe-paper), #f8f1e7) !important;
   padding: 16px !important;
+  color: var(--scribe-ink) !important;
 }
 
 .gradio-container button[aria-expanded] {
   border: var(--scribe-border) !important;
   border-radius: 0 !important;
-  background: var(--scribe-panel-muted) !important;
+  background: #efe5d7 !important;
   color: var(--scribe-ink) !important;
 }
 
 .gradio-container .prose {
   line-height: 1.5;
+  color: var(--scribe-ink) !important;
+}
+
+.gradio-container .prose *,
+.gradio-container [data-testid="markdown"],
+.gradio-container [data-testid="markdown"] * {
+  color: var(--scribe-ink) !important;
 }
 
 .gradio-container .prose blockquote {
@@ -380,9 +461,14 @@ div[data-testid="progress-bar"], .progress-bar {
 .gradio-container .prose pre {
   border: var(--scribe-border);
   border-radius: 0 !important;
-  background: #111111 !important;
-  color: #fff5c5 !important;
+  background: #181818 !important;
+  color: #fff4e6 !important;
   box-shadow: var(--scribe-shadow);
+}
+
+.gradio-container .prose pre *,
+.gradio-container .prose code {
+  color: inherit !important;
 }
 
 .gradio-container .prose th,
@@ -397,7 +483,7 @@ div[data-testid="progress-bar"], .progress-bar {
 
 .scribe-status-note {
   border: var(--scribe-border);
-  background: #fff5c5;
+  background: linear-gradient(90deg, #fff4d7, #f9e7c8);
   padding: 10px 12px;
   box-shadow: 4px 4px 0 0 #111111;
   font-size: 0.92rem;
@@ -412,8 +498,8 @@ div[data-testid="progress-bar"], .progress-bar {
   align-items: center;
   gap: 12px;
   border: var(--scribe-border);
-  background: #111111;
-  color: #fff5c5;
+  background: linear-gradient(90deg, #f6d5b9, #f8e4cf);
+  color: var(--scribe-ink);
   padding: 12px 14px;
   margin: 16px 0 12px;
   box-shadow: var(--scribe-shadow);
@@ -432,11 +518,11 @@ div[data-testid="progress-bar"], .progress-bar {
 
 .scribe-ribbon--hot {
   background: var(--scribe-panel-alt);
-  color: #fff6eb;
+  color: var(--scribe-ink);
 }
 
 .scribe-ribbon--hot .scribe-kicker {
-  background: #fff6eb;
+  background: var(--scribe-paper);
   color: var(--scribe-ink);
 }
 
@@ -462,8 +548,8 @@ div[data-testid="progress-bar"], .progress-bar {
 
 .scribe-status-block {
   border: var(--scribe-border);
-  background: #111111;
-  color: #fff5c5 !important;
+  background: linear-gradient(180deg, #fffaf2, #f6ead9);
+  color: var(--scribe-ink) !important;
   padding: 12px 14px !important;
   box-shadow: var(--scribe-shadow);
 }
@@ -505,7 +591,7 @@ div[data-testid="progress-bar"], .progress-bar {
 
 .copy-action:hover {
   background: var(--scribe-panel-alt) !important;
-  color: #fff6eb !important;
+  color: var(--scribe-ink) !important;
 }
 
 .copy-status {
@@ -527,7 +613,7 @@ div[data-testid="progress-bar"], .progress-bar {
   border: var(--scribe-border) !important;
   box-shadow: var(--scribe-shadow);
   background:
-    linear-gradient(135deg, rgba(255, 216, 77, 0.18), rgba(255, 106, 19, 0.14)),
+    linear-gradient(135deg, rgba(248, 218, 194, 0.72), rgba(241, 138, 69, 0.18)),
     var(--scribe-paper) !important;
   color: var(--scribe-ink) !important;
 }
@@ -536,6 +622,32 @@ div[data-testid="progress-bar"], .progress-bar {
   min-height: 72px;
   font-size: 1.05rem;
   letter-spacing: 0.14em;
+  background: var(--scribe-panel-alt) !important;
+  color: var(--scribe-ink) !important;
+}
+
+.gradio-container input[type="checkbox"],
+.gradio-container input[type="radio"] {
+  accent-color: var(--scribe-panel-alt);
+}
+
+.gradio-container [data-testid="checkbox"],
+.gradio-container [data-testid="radio"],
+.gradio-container [role="radiogroup"] {
+  background: transparent !important;
+  color: var(--scribe-ink) !important;
+}
+
+.gradio-container footer,
+.gradio-container footer * {
+  background: transparent !important;
+  color: var(--scribe-ink) !important;
+}
+
+.gradio-container footer {
+  border-top: var(--scribe-border);
+  margin-top: 28px;
+  padding-top: 12px;
 }
 
 #refresh_models_btn {
@@ -988,7 +1100,7 @@ def build_demo(config: AppConfig | None = None) -> gr.Blocks:
                     pass
 
     with gr.Blocks(
-        theme=gr.themes.Base(),
+        theme=APP_THEME,
         css=CUSTOM_CSS,
         head=APP_HEAD,
     ) as demo:
