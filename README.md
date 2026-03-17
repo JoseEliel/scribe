@@ -6,7 +6,8 @@ It transcribes audio, applies speaker diarization when available, keeps the raw 
 
 ## What Scribe Does
 
-- Transcribes uploaded audio files with `mlx-whisper`
+- Transcribes uploaded audio files with [mlx-whisper](https://pypi.org/project/mlx-whisper/) on Apple Silicon Macs
+- Uses [faster-whisper](https://github.com/SYSTRAN/faster-whisper) on other platforms by default
 - Runs speaker diarization with `pyannote.audio` when `HF_TOKEN` is configured
 - Falls back to a single-speaker transcript when diarization is unavailable
 - Lets you upload existing diarized `.txt` transcripts for analysis-only runs
@@ -26,7 +27,7 @@ That is why the app surfaces the raw transcript as soon as transcription complet
 ## How The Pipeline Works
 
 1. Audio is normalized to mono 16 kHz WAV with `ffmpeg` when needed.
-2. `mlx-whisper` generates a transcript with word timestamps.
+2. The app transcribes with `mlx-whisper` on Apple Silicon Macs or `faster-whisper` elsewhere.
 3. `pyannote.audio` assigns speaker segments if diarization is enabled.
 4. Timestamped words are aligned back onto speaker turns.
 5. The diarized transcript is formatted for reading and downstream prompts.
@@ -41,6 +42,7 @@ For transcript-only runs, Scribe skips the audio pipeline and analyzes uploaded 
 - Ollama installed and running if you want summaries
 - A Hugging Face token if you want true multi-speaker diarization
 - Acceptance of the `pyannote/speaker-diarization-3.1` model terms on Hugging Face
+- Apple Silicon is optional, not required
 
 ## Installation
 
@@ -83,8 +85,14 @@ Important environment variables:
 
 - `HF_TOKEN`
   - Enables `pyannote.audio` speaker diarization. Without it, audio still transcribes, but diarization falls back to a single speaker.
+- `SCRIBE_TRANSCRIPTION_BACKEND`
+  - `auto`, `mlx`, or `faster-whisper`. `auto` uses MLX on Apple Silicon Macs and Faster-Whisper elsewhere.
+- `SCRIBE_MLX_MODEL_NAME`
+  - Whisper model used by `mlx-whisper` on Apple Silicon Macs.
+- `SCRIBE_FASTER_WHISPER_MODEL`
+  - Whisper model used by `faster-whisper` on non-Apple-Silicon systems.
 - `SCRIBE_MODEL_NAME`
-  - Whisper model used by `mlx-whisper`.
+  - Legacy alias for `SCRIBE_MLX_MODEL_NAME`.
 - `SCRIBE_DEFAULT_LLM`
   - Preferred Ollama model shown in the UI. This is just the default selection, not a hard requirement.
 - `SCRIBE_DEFAULT_SAVE_DIR`
@@ -103,6 +111,11 @@ Important environment variables:
 
 Scribe is not tied to a specific Ollama model. Any local chat-capable Ollama model should work for the analysis step. `gemma3:27b` is used here only as the repo default and example value.
 
+For transcription, Scribe uses different backends by platform:
+
+- Apple Silicon macOS: `mlx-whisper`
+- Other systems: `faster-whisper`
+
 If you want LLM analysis, make sure Ollama is running and pull whichever model you want to use:
 
 ```bash
@@ -110,7 +123,7 @@ ollama serve
 ollama pull gemma3:27b
 ```
 
-If you want to warm model caches before first use, run:
+If you want to warm the transcription and diarization model caches before first use, run:
 
 ```bash
 python download_models.py
@@ -118,7 +131,7 @@ python download_models.py
 
 That script will:
 
-- Trigger the Whisper model download
+- Trigger the active transcription backend model download
 - Download the pyannote diarization pipeline if `HF_TOKEN` is set
 
 ## Run The App
@@ -150,6 +163,7 @@ By default the Gradio app listens on `0.0.0.0:7860`. Override that with `PORT` o
 ## Operational Notes
 
 - Raw transcript is intentionally first-class. It is available before diarization completes.
+- `SCRIBE_TRANSCRIPTION_BACKEND=auto` picks MLX only on Apple Silicon Macs. Intel Macs, Linux, and Windows fall back to Faster-Whisper.
 - Saving diarized transcripts only applies to audio inputs.
 - Prompt editing supports both `{{transcript}}` and `{transcript}` placeholders.
 - If diarization cannot initialize, Scribe still produces a transcript and labels it as a single speaker.
@@ -193,3 +207,5 @@ tests/
   - Confirm `HF_TOKEN` is exported and that you have accepted the pyannote model terms.
 - First run is slow
   - Model downloads and lazy initialization happen on first use unless you pre-warm them with `download_models.py`.
+- Transcription backend confusion
+  - `gemma3:27b` is only the default Ollama example. Speech transcription uses `mlx-whisper` or `faster-whisper`, not Ollama.

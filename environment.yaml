@@ -16,7 +16,8 @@ dependencies:
 
   # --- Python packages installed via Pip ---
   - pip:
-    - mlx-whisper   # The optimized Whisper implementation.
+    - mlx-whisper   # Apple Silicon transcription backend.
+    - faster-whisper  # Cross-platform transcription backend.
     - pyannote.audio==3.1.1     # Pinned for stability as recommended.
     - ollama                  # The client for the local LLM.
     - gradio                  # UI framework.

@@ -2,17 +2,19 @@ from __future__ import annotations
 
 import contextlib
 import os
+import platform
 import subprocess
 import tempfile
 import wave
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
 
 from .config import AppConfig, cpu_thread_count
 from .files import format_hms
 
 
 _UNSET = object()
+TranscriptionBackend = Literal["mlx", "faster-whisper"]
 
 
 @dataclass
@@ -21,26 +23,71 @@ class TranscriptionResult:
     word_chunks: list[dict[str, Any]]
 
 
+def is_apple_silicon_mac(system: str | None = None, machine: str | None = None) -> bool:
+    current_system = (system or platform.system()).strip().lower()
+    current_machine = (machine or platform.machine()).strip().lower()
+    return current_system == "darwin" and current_machine in {"arm64", "aarch64"}
+
+
+def normalize_transcription_backend(name: str | None) -> str:
+    normalized = (name or "").strip().lower()
+    if normalized in {"mlx"}:
+        return "mlx"
+    if normalized in {"faster-whisper", "faster_whisper", "faster whisper", "faster"}:
+        return "faster-whisper"
+    return "auto"
+
+
+def resolve_transcription_backend(
+    requested: str | None,
+    system: str | None = None,
+    machine: str | None = None,
+) -> TranscriptionBackend:
+    normalized = normalize_transcription_backend(requested)
+    if normalized == "mlx" and is_apple_silicon_mac(system=system, machine=machine):
+        return "mlx"
+    if normalized == "mlx":
+        return "faster-whisper"
+    if normalized == "faster-whisper":
+        return "faster-whisper"
+    return "mlx" if is_apple_silicon_mac(system=system, machine=machine) else "faster-whisper"
+
+
 class SpeechPipeline:
     def __init__(self, config: AppConfig):
         self.config = config
         self.thread_count = cpu_thread_count()
+        self.requested_transcription_backend = normalize_transcription_backend(
+            config.transcription_backend
+        )
         self._torch = None
         self._mlx_whisper = None
+        self._faster_whisper_model = None
         self._pyannote_pipeline = _UNSET
         self._diar_device: str | None = None
         self._diarization_warning: str = ""
+        self._transcription_device: str | None = None
+        self._transcription_compute_type: str | None = None
+        self.transcription_backend = resolve_transcription_backend(config.transcription_backend)
 
     def startup_note(self) -> str:
+        backend_name = (
+            "MLX Whisper"
+            if self.transcription_backend == "mlx"
+            else "Faster-Whisper"
+        )
+        backend_message = f"ℹ️ Transcription backend: {backend_name}."
+        if self.requested_transcription_backend == "mlx" and self.transcription_backend != "mlx":
+            backend_message += " Requested MLX is not available on this platform, so Scribe fell back to Faster-Whisper."
         if not self.config.hf_token:
-            return (
+            return backend_message + " " + (
                 "⚠️ Speaker diarization is in fallback mode. "
                 "Set `HF_TOKEN` to enable pyannote speaker separation."
             )
-        return (
-            "ℹ️ Speaker diarization loads on first audio run. "
-            "Apple Silicon will prefer MPS when available."
-        )
+        diarization_message = "ℹ️ Speaker diarization loads on first audio run."
+        if is_apple_silicon_mac():
+            diarization_message += " Apple Silicon will prefer MPS when available."
+        return f"{backend_message} {diarization_message}"
 
     def _ensure_torch(self):
         if self._torch is None:
@@ -190,34 +237,81 @@ class SpeechPipeline:
             self._mlx_whisper = mlx_whisper
         return self._mlx_whisper
 
-    def transcribe_audio(self, audio_path: str) -> TranscriptionResult:
-        mlx_whisper = self._ensure_mlx_whisper()
-        result = mlx_whisper.transcribe(
-            audio_path,
-            path_or_hf_repo=self.config.model_name,
-            word_timestamps=True,
-        )
-        segments = result.get("segments", []) or []
+    def _detect_faster_whisper_device(self) -> str:
+        if self._transcription_device:
+            return self._transcription_device
+        torch = self._ensure_torch()
+        if torch.cuda.is_available():
+            self._transcription_device = "cuda"
+            self._transcription_compute_type = "float16"
+        else:
+            self._transcription_device = "cpu"
+            self._transcription_compute_type = "int8"
+        return self._transcription_device
+
+    def _ensure_faster_whisper_model(self):
+        if self._faster_whisper_model is None:
+            from faster_whisper import WhisperModel
+
+            device = self._detect_faster_whisper_device()
+            self._faster_whisper_model = WhisperModel(
+                self.config.faster_whisper_model,
+                device=device,
+                compute_type=self._transcription_compute_type or "int8",
+                cpu_threads=self.thread_count,
+            )
+        return self._faster_whisper_model
+
+    def _build_transcription_result(self, segments: list[Any]) -> TranscriptionResult:
         raw_parts: list[str] = []
         words: list[dict[str, Any]] = []
         for segment in segments:
-            segment_text = (segment.get("text") or "").strip()
+            if isinstance(segment, dict):
+                segment_text = (segment.get("text") or "").strip()
+                segment_words = segment.get("words", []) or []
+            else:
+                segment_text = (getattr(segment, "text", "") or "").strip()
+                segment_words = getattr(segment, "words", []) or []
             if segment_text:
                 raw_parts.append(segment_text)
-            for word in segment.get("words", []) or []:
-                if isinstance(word, dict) and {"word", "start", "end"} <= set(word):
+            for word in segment_words:
+                if isinstance(word, dict):
                     text = (word.get("word") or "").strip()
-                    if text:
-                        words.append(
-                            {
-                                "text": text,
-                                "timestamp": (word["start"], word["end"]),
-                            }
-                        )
+                    start = word.get("start")
+                    end = word.get("end")
+                else:
+                    text = (getattr(word, "word", "") or "").strip()
+                    start = getattr(word, "start", None)
+                    end = getattr(word, "end", None)
+                if text and start is not None and end is not None:
+                    words.append({"text": text, "timestamp": (start, end)})
         raw_text = "\n\n".join(raw_parts).strip()
         if not raw_text:
             raw_text = " ".join(word["text"] for word in words)
         return TranscriptionResult(raw_text=raw_text, word_chunks=words)
+
+    def _transcribe_with_mlx(self, audio_path: str) -> TranscriptionResult:
+        mlx_whisper = self._ensure_mlx_whisper()
+        result = mlx_whisper.transcribe(
+            audio_path,
+            path_or_hf_repo=self.config.mlx_model_name,
+            word_timestamps=True,
+        )
+        segments = result.get("segments", []) or []
+        return self._build_transcription_result(segments)
+
+    def _transcribe_with_faster_whisper(self, audio_path: str) -> TranscriptionResult:
+        model = self._ensure_faster_whisper_model()
+        segments, _info = model.transcribe(
+            audio_path,
+            word_timestamps=True,
+        )
+        return self._build_transcription_result(list(segments))
+
+    def transcribe_audio(self, audio_path: str) -> TranscriptionResult:
+        if self.transcription_backend == "mlx":
+            return self._transcribe_with_mlx(audio_path)
+        return self._transcribe_with_faster_whisper(audio_path)
 
     def diarize_audio(
         self,

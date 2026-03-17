@@ -5,7 +5,9 @@ import os
 from dataclasses import dataclass
 
 
-MODEL_NAME = "mlx-community/whisper-large-v3-turbo"
+DEFAULT_MLX_MODEL_NAME = "mlx-community/whisper-large-v3-turbo"
+DEFAULT_FASTER_WHISPER_MODEL = "large-v3"
+DEFAULT_TRANSCRIPTION_BACKEND = "auto"
 DEFAULT_LLM = "gemma3:27b"
 DEFAULT_MAX_SPEAKERS = 8
 
@@ -30,7 +32,9 @@ def env_int(name: str, default: int) -> int:
 @dataclass(frozen=True)
 class AppConfig:
     hf_token: str
-    model_name: str
+    mlx_model_name: str
+    faster_whisper_model: str
+    transcription_backend: str
     default_llm: str
     default_save_dir: str
     enable_remote_tokenizer_lookup: bool
@@ -44,7 +48,21 @@ def cpu_thread_count() -> int:
 def load_config() -> AppConfig:
     return AppConfig(
         hf_token=os.getenv("HF_TOKEN", "").strip(),
-        model_name=os.getenv("SCRIBE_MODEL_NAME", MODEL_NAME).strip() or MODEL_NAME,
+        mlx_model_name=(
+            os.getenv(
+                "SCRIBE_MLX_MODEL_NAME",
+                os.getenv("SCRIBE_MODEL_NAME", DEFAULT_MLX_MODEL_NAME),
+            ).strip()
+            or DEFAULT_MLX_MODEL_NAME
+        ),
+        faster_whisper_model=(
+            os.getenv("SCRIBE_FASTER_WHISPER_MODEL", DEFAULT_FASTER_WHISPER_MODEL).strip()
+            or DEFAULT_FASTER_WHISPER_MODEL
+        ),
+        transcription_backend=(
+            os.getenv("SCRIBE_TRANSCRIPTION_BACKEND", DEFAULT_TRANSCRIPTION_BACKEND).strip()
+            or DEFAULT_TRANSCRIPTION_BACKEND
+        ),
         default_llm=os.getenv("SCRIBE_DEFAULT_LLM", DEFAULT_LLM).strip() or DEFAULT_LLM,
         default_save_dir=os.path.abspath(
             os.path.expanduser(
@@ -65,4 +83,3 @@ def launch_settings() -> dict[str, object]:
         "share": env_flag("GRADIO_SHARE", False),
         "debug": env_flag("GRADIO_DEBUG", False),
     }
-
