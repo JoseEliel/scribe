@@ -20,7 +20,6 @@ from .analysis import (
 )
 from .config import AppConfig, load_config
 from .files import (
-    append_markdown_section,
     append_section_text,
     build_diar_save_path,
     normalize_file_items,
@@ -233,18 +232,6 @@ div[data-testid="progress-bar"], .progress-bar {
   opacity: 0 !important;
   pointer-events: none !important;
   z-index: -1 !important;
-}
-
-#exec_md_out > .wrap,
-#det_md_out > .wrap,
-#act_md_out > .wrap {
-  display: none !important;
-}
-
-#exec_md_out > .pending,
-#det_md_out > .pending,
-#act_md_out > .pending {
-  opacity: 1 !important;
 }
 
 .scribe-header {
@@ -694,6 +681,16 @@ def build_copy_toolbar(target_elem_id: str, status_id: str, button_text: str, la
     )
 
 
+def render_markdown_sections(sections: list[tuple[str, str]], level: int = 2) -> str:
+    heading = "#" * max(1, level)
+    blocks = []
+    for title, body in sections:
+        content = (body or "").strip()
+        if content:
+            blocks.append(f"{heading} {title}\n\n{content}")
+    return "\n\n".join(blocks)
+
+
 def build_input_help_markdown() -> str:
     return (
         '<section class="scribe-header">'
@@ -776,6 +773,9 @@ def build_demo(config: AppConfig | None = None) -> gr.Blocks:
         exec_md = exec_txt = ""
         det_md = det_txt = ""
         act_md = act_txt = ""
+        exec_sections: list[tuple[str, str]] = []
+        det_sections: list[tuple[str, str]] = []
+        act_sections: list[tuple[str, str]] = []
         saved_diar_files: list[str] = []
         download_diar_files: list[str] = []
         download_stage_dir = ""
@@ -816,15 +816,29 @@ def build_demo(config: AppConfig | None = None) -> gr.Blocks:
 
         def append_llm_section(section: str, label: str, content: str):
             nonlocal exec_md, exec_txt, det_md, det_txt, act_md, act_txt
+
+            def upsert_section(sections: list[tuple[str, str]], title: str, body: str):
+                normalized_body = (body or "").strip()
+                if not normalized_body:
+                    return
+                for index, (section_title, _) in enumerate(sections):
+                    if section_title == title:
+                        sections[index] = (title, normalized_body)
+                        return
+                sections.append((title, normalized_body))
+
             if section == "exec":
-                exec_md = append_markdown_section(exec_md, label, content)
+                upsert_section(exec_sections, label, content)
+                exec_md = render_markdown_sections(exec_sections)
                 exec_txt = append_section_text(exec_txt, label, content)
                 return
             if section == "det":
-                det_md = append_markdown_section(det_md, label, content)
+                upsert_section(det_sections, label, content)
+                det_md = render_markdown_sections(det_sections)
                 det_txt = append_section_text(det_txt, label, content)
                 return
-            act_md = append_markdown_section(act_md, label, content)
+            upsert_section(act_sections, label, content)
+            act_md = render_markdown_sections(act_sections)
             act_txt = append_section_text(act_txt, label, content)
 
         def append_llm_skipped(prefix: str, label: str):
@@ -1351,7 +1365,7 @@ def build_demo(config: AppConfig | None = None) -> gr.Blocks:
                 act_txt_out,
                 diar_file_out,
             ],
-            show_progress="hidden",
+            show_progress="minimal",
         )
         refresh_models_btn.click(
             fn=refresh_ollama_models_ui,
