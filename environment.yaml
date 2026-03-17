@@ -1,0 +1,23 @@
+name: scribe
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  # --- Core Environment ---
+  - python=3.11        # A stable, modern Python version.
+  - ffmpeg             # Critical for audio file handling by various libraries.
+  - pip
+
+  # --- PyTorch for Apple Silicon ---
+  # Installs the latest versions with MPS (GPU) support from the official channel.
+  - pytorch
+  - torchvision
+  - torchaudio
+
+  # --- Python packages installed via Pip ---
+  - pip:
+    - mlx-whisper   # The optimized Whisper implementation.
+    - pyannote.audio==3.1.1     # Pinned for stability as recommended.
+    - ollama                  # The client for the local LLM.
+    - gradio                  # UI framework.
+    - transformers            # Token counting + HF utils.
