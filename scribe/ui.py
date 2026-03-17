@@ -246,21 +246,8 @@ div[data-testid="progress-bar"], .progress-bar {
 
 .scribe-header p,
 .scribe-header span,
-.scribe-header strong,
-.scribe-header__card,
-.scribe-header__card * {
+.scribe-header strong {
   color: var(--scribe-ink) !important;
-}
-
-.scribe-header__eyebrow {
-  display: inline-block;
-  border: var(--scribe-border);
-  background: var(--scribe-paper);
-  padding: 6px 10px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 
 .scribe-header h1 {
@@ -272,26 +259,9 @@ div[data-testid="progress-bar"], .progress-bar {
   color: var(--scribe-ink) !important;
 }
 
-.scribe-header__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.scribe-header__card {
-  border: var(--scribe-border);
-  background: rgba(255, 250, 242, 0.96);
-  padding: 14px;
-  box-shadow: var(--scribe-shadow-soft);
-}
-
-.scribe-header__card strong {
-  display: block;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-  letter-spacing: 0.09em;
+.scribe-header p {
+  margin: 0;
+  max-width: 58rem;
 }
 
 .gradio-container h2,
@@ -755,14 +725,8 @@ def render_markdown_sections(sections: list[tuple[str, str]], level: int = 2) ->
 def build_input_help_markdown() -> str:
     return (
         '<section class="scribe-header">'
-        '<div class="scribe-header__eyebrow">Local / Raw First / Brutalist</div>'
         "<h1>Scribe</h1>"
         "<p>Batch audio transcription, diarization, transcript review, and local LLM analysis without hiding the raw text behind a finished pipeline.</p>"
-        '<div class="scribe-header__grid">'
-        '<div class="scribe-header__card"><strong>Raw First</strong><span>The live raw transcript lands before diarization finishes so you can copy and ship it during long runs.</span></div>'
-        '<div class="scribe-header__card"><strong>Power User Modes</strong><span>Switch between audio, transcript-only, or mixed ingestion without changing apps.</span></div>'
-        '<div class="scribe-header__card"><strong>Local Model Stack</strong><span>Whisper + pyannote + Ollama, with clear failure states instead of silent soft-fallback UI.</span></div>'
-        "</div>"
         "</section>"
     )
 
