@@ -1351,7 +1351,7 @@ def build_demo(config: AppConfig | None = None) -> gr.Blocks:
                 act_txt_out,
                 diar_file_out,
             ],
-            show_progress="minimal",
+            show_progress="hidden",
         )
         refresh_models_btn.click(
             fn=refresh_ollama_models_ui,
