@@ -115,6 +115,12 @@ CUSTOM_CSS = """
   --scribe-danger: #e61b00;
   --scribe-shadow: 8px 8px 0 0 #111111;
   --scribe-border: 3px solid #111111;
+  --body-text-color: #111111;
+  --body-text-color-subdued: #111111;
+  --block-label-text-color: #111111;
+  --block-title-text-color: #111111;
+  --input-text-color: #111111;
+  color-scheme: light;
 }
 
 html, body {
@@ -123,6 +129,7 @@ html, body {
     linear-gradient(rgba(17, 17, 17, 0.05) 1px, transparent 1px),
     var(--scribe-bg);
   background-size: 36px 36px, 36px 36px, auto;
+  color-scheme: light;
 }
 
 .gradio-container,
@@ -135,6 +142,7 @@ html, body {
   color: var(--scribe-ink) !important;
   max-width: 1480px !important;
   padding-top: 18px !important;
+  color-scheme: light !important;
 }
 
 div[data-testid="progress-bar"], .progress-bar {
@@ -161,9 +169,17 @@ div[data-testid="progress-bar"], .progress-bar {
   border: var(--scribe-border);
   box-shadow: var(--scribe-shadow);
   background: linear-gradient(135deg, var(--scribe-panel) 0 68%, var(--scribe-panel-alt) 68% 100%);
-  color: var(--scribe-ink);
+  color: var(--scribe-ink) !important;
   padding: 24px;
   margin-bottom: 18px;
+}
+
+.scribe-header p,
+.scribe-header span,
+.scribe-header strong,
+.scribe-header__card,
+.scribe-header__card * {
+  color: var(--scribe-ink) !important;
 }
 
 .scribe-header__eyebrow {
@@ -211,6 +227,24 @@ div[data-testid="progress-bar"], .progress-bar {
 .gradio-container h3 {
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.gradio-container label,
+.gradio-container legend,
+.gradio-container [data-testid="block-info"],
+.gradio-container [data-testid="file-upload-dropzone"],
+.gradio-container [data-testid="file-upload-dropzone"] *,
+#input_mode,
+#input_mode *,
+#run_llm_toggle,
+#run_llm_toggle *,
+#save_diar_toggle,
+#save_diar_toggle *,
+#audio_drop,
+#audio_drop *,
+#text_drop,
+#text_drop * {
+  color: var(--scribe-ink) !important;
 }
 
 .gradio-container .block,
@@ -369,6 +403,7 @@ div[data-testid="progress-bar"], .progress-bar {
   font-size: 0.92rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  color: var(--scribe-ink) !important;
 }
 
 .scribe-ribbon {
@@ -422,6 +457,7 @@ div[data-testid="progress-bar"], .progress-bar {
   font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  color: var(--scribe-ink) !important;
 }
 
 .scribe-status-block {
@@ -493,6 +529,7 @@ div[data-testid="progress-bar"], .progress-bar {
   background:
     linear-gradient(135deg, rgba(255, 216, 77, 0.18), rgba(255, 106, 19, 0.14)),
     var(--scribe-paper) !important;
+  color: var(--scribe-ink) !important;
 }
 
 #run_btn {
