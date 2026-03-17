@@ -76,7 +76,7 @@ Minimum useful configuration:
 
 ```bash
 export HF_TOKEN=hf_your_token_here
-export SCRIBE_DEFAULT_LLM=gemma3:27b
+export SCRIBE_DEFAULT_LLM=gemma3:27b  # example default
 ```
 
 Important environment variables:
@@ -86,7 +86,7 @@ Important environment variables:
 - `SCRIBE_MODEL_NAME`
   - Whisper model used by `mlx-whisper`.
 - `SCRIBE_DEFAULT_LLM`
-  - Preferred Ollama model shown in the UI.
+  - Preferred Ollama model shown in the UI. This is just the default selection, not a hard requirement.
 - `SCRIBE_DEFAULT_SAVE_DIR`
   - Save fallback for uploaded files that do not have a stable original path.
 - `SCRIBE_MAX_SPEAKERS`
@@ -101,7 +101,9 @@ Important environment variables:
 
 ## Prepare Local Models
 
-If you want LLM analysis, make sure Ollama is running and the model is pulled:
+Scribe is not tied to a specific Ollama model. Any local chat-capable Ollama model should work for the analysis step. `gemma3:27b` is used here only as the repo default and example value.
+
+If you want LLM analysis, make sure Ollama is running and pull whichever model you want to use:
 
 ```bash
 ollama serve
