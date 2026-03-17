@@ -182,7 +182,8 @@ CUSTOM_CSS = """
   --scribe-panel-soft: #fffaf2;
   --scribe-ink: #111111;
   --scribe-danger: #e61b00;
-  --scribe-shadow: 8px 8px 0 0 #111111;
+  --scribe-shadow-strong: 8px 8px 0 0 #111111;
+  --scribe-shadow-soft: 3px 3px 0 0 #111111;
   --scribe-border: 3px solid #111111;
   --body-text-color: #111111;
   --body-text-color-subdued: #111111;
@@ -236,7 +237,7 @@ div[data-testid="progress-bar"], .progress-bar {
 
 .scribe-header {
   border: var(--scribe-border);
-  box-shadow: var(--scribe-shadow);
+  box-shadow: var(--scribe-shadow-strong);
   background: linear-gradient(135deg, #f7e3bf 0 60%, var(--scribe-panel-alt) 60% 100%);
   color: var(--scribe-ink) !important;
   padding: 24px;
@@ -282,7 +283,7 @@ div[data-testid="progress-bar"], .progress-bar {
   border: var(--scribe-border);
   background: rgba(255, 250, 242, 0.96);
   padding: 14px;
-  box-shadow: 4px 4px 0 0 #111111;
+  box-shadow: var(--scribe-shadow-soft);
 }
 
 .scribe-header__card strong {
@@ -336,7 +337,7 @@ div[data-testid="progress-bar"], .progress-bar {
 .gradio-container .gr-box,
 .gradio-container .gr-accordion {
   border: var(--scribe-border) !important;
-  box-shadow: var(--scribe-shadow);
+  box-shadow: none !important;
   background: linear-gradient(180deg, var(--scribe-paper), #f7f0e6) !important;
   color: var(--scribe-ink) !important;
 }
@@ -349,7 +350,7 @@ div[data-testid="progress-bar"], .progress-bar {
 .gradio-container [data-testid="dropdown"] {
   border: var(--scribe-border) !important;
   border-radius: 0 !important;
-  box-shadow: 5px 5px 0 0 #111111;
+  box-shadow: none !important;
   background: var(--scribe-panel-soft) !important;
   color: var(--scribe-ink) !important;
 }
@@ -358,20 +359,29 @@ div[data-testid="progress-bar"], .progress-bar {
 .gradio-container input:focus,
 .gradio-container select:focus {
   outline: none !important;
-  box-shadow: 7px 7px 0 0 #111111 !important;
+  box-shadow: var(--scribe-shadow-soft) !important;
 }
 
-.gradio-container button,
-.gradio-container .lg,
-.gradio-container .md,
-.gradio-container .sm {
+.gradio-container button {
   border: var(--scribe-border) !important;
   border-radius: 0 !important;
-  box-shadow: 6px 6px 0 0 #111111;
+  box-shadow: var(--scribe-shadow-soft);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700 !important;
   transition: transform 0.08s ease;
+}
+
+.gradio-container [data-testid="markdown"],
+.gradio-container [data-testid="markdown"] .prose,
+.gradio-container [data-testid="markdown"] .md,
+.gradio-container span.md {
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  transition: none !important;
 }
 
 .gradio-container button:hover {
@@ -380,17 +390,15 @@ div[data-testid="progress-bar"], .progress-bar {
 
 .gradio-container button:active {
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 0 #111111 !important;
+  box-shadow: 1px 1px 0 0 #111111 !important;
 }
 
-.gradio-container button.primary,
-.gradio-container .primary {
+.gradio-container button.primary {
   background: var(--scribe-panel-alt) !important;
   color: var(--scribe-ink) !important;
 }
 
 .gradio-container button.secondary,
-.gradio-container .secondary,
 .copy-action {
   background: var(--scribe-panel) !important;
   color: var(--scribe-ink) !important;
@@ -405,7 +413,7 @@ div[data-testid="progress-bar"], .progress-bar {
 .gradio-container [role="tab"] {
   border: var(--scribe-border) !important;
   border-radius: 0 !important;
-  box-shadow: 5px 5px 0 0 #111111;
+  box-shadow: none !important;
   background: #efe5d7 !important;
   color: var(--scribe-ink) !important;
   text-transform: uppercase;
@@ -415,11 +423,12 @@ div[data-testid="progress-bar"], .progress-bar {
 
 .gradio-container [role="tab"][aria-selected="true"] {
   background: var(--scribe-panel) !important;
+  box-shadow: var(--scribe-shadow-soft) !important;
 }
 
 .gradio-container [role="tabpanel"] {
   border: var(--scribe-border) !important;
-  box-shadow: var(--scribe-shadow);
+  box-shadow: none !important;
   background: linear-gradient(180deg, var(--scribe-paper), #f8f1e7) !important;
   padding: 16px !important;
   color: var(--scribe-ink) !important;
@@ -462,7 +471,7 @@ div[data-testid="progress-bar"], .progress-bar {
   border-radius: 0 !important;
   background: #181818 !important;
   color: #fff4e6 !important;
-  box-shadow: var(--scribe-shadow);
+  box-shadow: var(--scribe-shadow-soft);
 }
 
 .gradio-container .prose pre *,
@@ -484,7 +493,7 @@ div[data-testid="progress-bar"], .progress-bar {
   border: var(--scribe-border);
   background: linear-gradient(90deg, #fff4d7, #f9e7c8);
   padding: 10px 12px;
-  box-shadow: 4px 4px 0 0 #111111;
+  box-shadow: none;
   font-size: 0.92rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -501,7 +510,7 @@ div[data-testid="progress-bar"], .progress-bar {
   color: var(--scribe-ink);
   padding: 12px 14px;
   margin: 16px 0 12px;
-  box-shadow: var(--scribe-shadow);
+  box-shadow: var(--scribe-shadow-soft);
 }
 
 .scribe-ribbon strong {
@@ -545,12 +554,21 @@ div[data-testid="progress-bar"], .progress-bar {
   color: var(--scribe-ink) !important;
 }
 
+.scribe-output-heading {
+  margin: 12px 0 10px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--scribe-ink);
+}
+
 .scribe-status-block {
   border: var(--scribe-border);
   background: linear-gradient(180deg, #fffaf2, #f6ead9);
   color: var(--scribe-ink) !important;
   padding: 12px 14px !important;
-  box-shadow: var(--scribe-shadow);
+  box-shadow: none !important;
 }
 
 .scribe-status-block p,
@@ -581,7 +599,7 @@ div[data-testid="progress-bar"], .progress-bar {
   border-radius: 0 !important;
   background: var(--scribe-panel) !important;
   color: var(--scribe-ink) !important;
-  box-shadow: 6px 6px 0 0 #111111;
+  box-shadow: var(--scribe-shadow-soft);
   padding: 0.45rem 0.8rem;
   font-size: 0.95rem;
   font-weight: 600;
@@ -610,7 +628,7 @@ div[data-testid="progress-bar"], .progress-bar {
 #audio_drop,
 #text_drop {
   border: var(--scribe-border) !important;
-  box-shadow: var(--scribe-shadow);
+  box-shadow: var(--scribe-shadow-soft);
   background:
     linear-gradient(135deg, rgba(248, 218, 194, 0.72), rgba(241, 138, 69, 0.18)),
     var(--scribe-paper) !important;
@@ -1278,7 +1296,7 @@ def build_demo(config: AppConfig | None = None) -> gr.Blocks:
                 gr.HTML(
                     '<p class="scribe-panel-note">Executive summary, detailed summary, and action items stay isolated so you can copy each output cleanly.</p>'
                 )
-                gr.Markdown("Executive Summary")
+                gr.HTML('<h3 class="scribe-output-heading">Executive Summary</h3>')
                 exec_md_out = gr.Markdown(elem_id="exec_md_out")
                 with gr.Accordion("Copy Executive Summary Text", open=False):
                     gr.HTML(
@@ -1298,7 +1316,7 @@ def build_demo(config: AppConfig | None = None) -> gr.Blocks:
                         elem_id="exec_txt_out",
                     )
 
-                gr.Markdown("Detailed Summary")
+                gr.HTML('<h3 class="scribe-output-heading">Detailed Summary</h3>')
                 det_md_out = gr.Markdown(elem_id="det_md_out")
                 with gr.Accordion("Copy Detailed Summary Text", open=False):
                     gr.HTML(
@@ -1318,7 +1336,7 @@ def build_demo(config: AppConfig | None = None) -> gr.Blocks:
                         elem_id="det_txt_out",
                     )
 
-                gr.Markdown("Action Items")
+                gr.HTML('<h3 class="scribe-output-heading">Action Items</h3>')
                 act_md_out = gr.Markdown(elem_id="act_md_out")
                 with gr.Accordion("Copy Action Items Text", open=False):
                     gr.HTML(
