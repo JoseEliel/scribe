@@ -643,7 +643,50 @@ div[data-testid="progress-bar"], .progress-bar {
   color: var(--scribe-ink) !important;
 }
 
-.gradio-container input[type="checkbox"],
+.gradio-container input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0 0.55rem 0 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 3px solid #111111 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: var(--scribe-paper) !important;
+  background-image: none !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 100% 100% !important;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.gradio-container input[type="checkbox"]:focus,
+.gradio-container input[type="checkbox"]:focus-visible,
+.gradio-container input[type="checkbox"]:active {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.gradio-container input[type="checkbox"]:checked {
+  background-color: var(--scribe-panel) !important;
+  background-image:
+    linear-gradient(
+      45deg,
+      transparent 40%,
+      #111111 40%,
+      #111111 60%,
+      transparent 60%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 40%,
+      #111111 40%,
+      #111111 60%,
+      transparent 60%
+    ) !important;
+}
+
 .gradio-container input[type="radio"] {
   accent-color: var(--scribe-panel-alt);
 }
